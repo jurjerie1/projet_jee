@@ -1,9 +1,11 @@
 package com.supinfo.jee.casino.gambler;
 
+import com.supinfo.jee.casino.party.Party;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -27,6 +29,7 @@ public class GamblerManagerImpl implements GamblerManager {
 
         return gambler;
     }
+
 
     @Override
     public void authenticateGambler(String pseudo, String password) {
@@ -91,37 +94,77 @@ public class GamblerManagerImpl implements GamblerManager {
         }
     }
 
-    @Override
-    public Gambler playGame(String pseudo, int initialValue, int bet, int numberOfLaunch) {
-        System.out.println("Ici le jeu ");
-        if (pseudo == null || pseudo.isEmpty()) {
-            throw new EmptyPseudoException();
-        }
-        Gambler gambler = this.retrieveGambler(pseudo).orElseThrow(EmptyPseudoException::new);
-        System.out.println("initialValue = " + initialValue);
-        System.out.println("bet = " + bet);
-        System.out.println("numberOfLaunch = " + numberOfLaunch);
-
-        for (int i = 0; i < numberOfLaunch; i++) {
-            boolean isWin = false;
-            int random = (int) (Math.random() * 98 + 1);
-            if (initialValue < random) {
-                isWin = true;
-            }
-            if (!isWin) {
-                gambler.setBalance(gambler.getBalance() - bet);
-            }
-            if (isWin) {
-                gambler.setBalance(gambler.getBalance() + (long) bet * (initialValue / 100));
-            }
-            System.out.println("newBalance = " + gambler.getBalance());
-        }
-        gambler = this.gamblerRepository.save(gambler);
-        if (gambler.getBalance() < 1) {
-            throw new WrongBalanceException(gambler.getBalance(), pseudo);
-        }
-        return gambler;
+    public int getNumberOfWin(String pseudo) {
+    if (pseudo == null || pseudo.isEmpty()) {
+        throw new EmptyPseudoException();
     }
+
+    List<Party> partyList = this.gamblerRepository.findByPseudo(pseudo).getPartyList();
+    int numberOfWin = 0;
+    int startIndex = Math.max(0, partyList.size() - 10); // Commencer à l'indice 0 ou l'indice correspondant aux 10 dernières parties
+    for (int i = startIndex; i < partyList.size(); i++) {
+        if (partyList.get(i).isWin()) {
+            numberOfWin++;
+        }
+    }
+
+    return numberOfWin;
+}
+
+@Override
+public Gambler playGame(String pseudo, int initialValue, int bet, int numberOfLaunch) {
+    if (pseudo == null || pseudo.isEmpty()) {
+        throw new EmptyPseudoException();
+    }
+
+    Gambler gambler = this.retrieveGambler(pseudo).orElseThrow(EmptyPseudoException::new);
+
+    int recentWins = getNumberOfWin(gambler.getPseudo());
+
+    if (recentWins == 10) {
+        // Si le joueur a gagné les 10 dernières parties, il perd directement
+        gambler.setBalance(gambler.getBalance() - (bet * numberOfLaunch));
+    }
+
+    for (int i = 0; i < numberOfLaunch; i++) {
+        Party newParty = new Party();
+        newParty.setGambler(gambler);
+        newParty.setBet(bet);
+        newParty.setDiceThrowCounter(initialValue);
+
+        boolean isWin = false;
+        int random = (int) (Math.random() * 98 + 1);
+
+        if (initialValue < random) {
+            isWin = true;
+            newParty.setWin(true);
+        }
+
+        if (!isWin || getNumberOfWin(gambler.getPseudo()) + i >= 8) {
+            gambler.setBalance(gambler.getBalance() - bet);
+            newParty.setWin(false);
+            isWin = false;
+        }
+
+        System.out.println("isWin = " + isWin);
+
+        if (isWin) {
+            gambler.setBalance(gambler.getBalance() + (long) bet * (initialValue / 100));
+        }
+
+        gambler.addParty(newParty);
+    }
+
+    gambler = this.gamblerRepository.save(gambler);
+
+    if (gambler.getBalance() < 1) {
+        throw new WrongBalanceException(gambler.getBalance(), pseudo);
+    }
+
+    getNumberOfWin(gambler.getPseudo());
+    return gambler;
+}
+
 
 
 }

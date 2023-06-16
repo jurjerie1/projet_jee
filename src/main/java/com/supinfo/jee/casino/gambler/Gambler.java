@@ -41,4 +41,11 @@ public class Gambler {
         this.pseudo = pseudoParam;
         this.password = passwordParam;
     }
+
+    public int GetSizePartyList() {
+        return this.partyList.size();
+    }
+    public void addParty(Party party) {
+        this.partyList.add(party);
+    }
 }
