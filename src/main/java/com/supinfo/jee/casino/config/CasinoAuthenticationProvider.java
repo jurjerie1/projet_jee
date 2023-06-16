@@ -1,5 +1,7 @@
 package com.supinfo.jee.casino.config;
 
+import com.supinfo.jee.casino.api.GamblerApi;
+import com.supinfo.jee.casino.api.GamblerInputDto;
 import com.supinfo.jee.casino.api.GameApi;
 import com.supinfo.jee.casino.api.GameInputDto;
 import feign.FeignException;
@@ -23,6 +25,8 @@ public class CasinoAuthenticationProvider implements AuthenticationProvider {
 
     private final GameApi gameApi;
 
+    private final GamblerApi gamblerApi;
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         log.info("try to authenticate {}", authentication);
@@ -45,4 +49,6 @@ public class CasinoAuthenticationProvider implements AuthenticationProvider {
     public boolean supports(Class<?> authentication) {
         return true;
     }
+
+
 }

@@ -16,4 +16,6 @@ public interface GameApi {
     @PostMapping("/authenticates")
     void authenticate(@RequestBody GameInputDto newGame);
 
+
+
 }

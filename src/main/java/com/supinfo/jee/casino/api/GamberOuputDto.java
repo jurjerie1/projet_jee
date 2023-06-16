@@ -10,7 +10,4 @@ import lombok.Setter;
 public class GamberOuputDto {
     private String pseudo;
     private String password;
-
-
-
 }

@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -85,32 +87,6 @@ public class CasinoController {
     public String connexion() {
         return "Connection";
     }
-
-    @GetMapping("/register")
-    public String register(HttpSession httpSession, Model model) {
-        GamberOuputDto gamber = new GamberOuputDto();
-        model.addAttribute("gamber", gamber);
-        return "register";
-    }
-
-    @PostMapping("/register")
-    public String register(@ModelAttribute GamberOuputDto gamber, HttpSession httpSession) {
-        log.info(String.valueOf(gamber));
-        String pseudo = gamber.getPseudo();
-        String password = gamber.getPassword();
-        String target;
-        try {
-            GamberInputDto newGameber = new GamberInputDto(pseudo, password);
-            LaunchOutputDto gameberOuputDto = this.gamberApi.register(newGameber);
-            httpSession.setAttribute("pseudo", gameberOuputDto.getPseudo());
-            target = "redirect:/dicestartermng";
-        } catch (FeignException.FeignClientException e) {
-            log.error("Unable to work with this player {} !", pseudo, e);
-            target = "redirect:/register";
-        }
-        return target;
-    }
-
     @GetMapping("/pay")
     public String pay(Model model, HttpSession httpSession) {
         String name = String.valueOf(httpSession.getAttribute("pseudo"));
@@ -119,7 +95,6 @@ public class CasinoController {
         model.addAttribute("credits", credits);
         return "pay";
     }
-
     @GetMapping("/dice-roll")
     public String diceRoll(Model model, HttpSession httpSession) {
         DiceThrow diceThrow = new DiceThrow();

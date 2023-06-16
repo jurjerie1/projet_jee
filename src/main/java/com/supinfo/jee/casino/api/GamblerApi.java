@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(value = "gameblerApi", url = "http://localhost:8081/")
 public interface GamblerApi {
     @PostMapping("/register")
-    LaunchOutputDto register(@RequestBody GamberInputDto newGamebler);
+    GamblerInputDto register(@RequestBody GamberInputDto newGamebler);
 
 }
