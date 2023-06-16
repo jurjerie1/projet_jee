@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <style>
+        @font-face {
+            font-family: "Poker";
+            src: url("/ttf/Poker.ttf") format("truetype");
+        }
+
+        .bord-radius {
+            border-radius: 40px;
+        }
+    </style>
+
+
+    <title>Crazyno</title>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</head>
+<body style="background-image:url(/img/fond.jpg);background-size:100%">
+<main>
+    <div class="container-fluid text-center">
+        <h1 class="display-1" style="color: white; font-family:'Poker',sans-serif">SupinfoCasino</h1>
+    </div>
+
+    <div class="container-fluid text-center">
+        <div>
+            <a href="/dicestartermng"><img alt="image dice" class="bord-radius" th:src="@{/img/dice.png}" width="20%">
+            </a>
+        </div>
+        <p/>
+        <div>
+            <a href="/dicestartermng"><img alt="image poker" class="bord-radius" th:src="@{/img/poker.png}" width="30%">
+            </a>
+        </div>
+    </div>
+
+</main>
+
+
+</body>
+</html>
