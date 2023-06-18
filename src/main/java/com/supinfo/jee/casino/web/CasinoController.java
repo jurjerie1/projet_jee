@@ -38,6 +38,8 @@ public class CasinoController {
         log.info("try to start game for {}.", pseudo);
         httpSession.setAttribute("pseudo", pseudo);
 
+
+
         GameInputDto newGame = new GameInputDto(pseudo, null);
         String target;
         try {
@@ -105,6 +107,9 @@ public class CasinoController {
         model.addAttribute("pseudo", name);
         Integer bet = (Integer) httpSession.getAttribute("bet");
         diceThrow.setBetAmount(Objects.requireNonNullElse(bet, 1));
+        if (httpSession.getAttribute("balance") == null) {
+            httpSession.setAttribute("balance", 0);
+        }
         Long balance = (Long) httpSession.getAttribute("balance");
         model.addAttribute("balance", Objects.requireNonNullElse(balance, 0));
 
@@ -134,7 +139,6 @@ public class CasinoController {
         httpSession.setAttribute("oldBalance", httpSession.getAttribute("balance"));
         httpSession.setAttribute("initialValue", diceThrow.getWinChance());
         httpSession.setAttribute("numberOfLaunch", diceThrow.getBetNumber());
-
 
         int initialValue = diceThrow.getWinChance();
         int numberOfLaunch = diceThrow.getBetNumber();
