@@ -87,6 +87,7 @@ public class CasinoController {
     public String connexion() {
         return "Connection";
     }
+
     @GetMapping("/pay")
     public String pay(Model model, HttpSession httpSession) {
         String name = String.valueOf(httpSession.getAttribute("pseudo"));
@@ -95,6 +96,7 @@ public class CasinoController {
         model.addAttribute("credits", credits);
         return "pay";
     }
+
     @GetMapping("/dice-roll")
     public String diceRoll(Model model, HttpSession httpSession) {
         DiceThrow diceThrow = new DiceThrow();
@@ -106,6 +108,20 @@ public class CasinoController {
         Long balance = (Long) httpSession.getAttribute("balance");
         model.addAttribute("balance", Objects.requireNonNullElse(balance, 0));
 
+        if (httpSession.getAttribute("oldBalance") == null) {
+            httpSession.setAttribute("oldBalance", balance);
+        }
+        if (httpSession.getAttribute("initialValue") == null) {
+            httpSession.setAttribute("initialValue", 50);
+        }
+        if (httpSession.getAttribute("numberOfLaunch") == null) {
+            httpSession.setAttribute("numberOfLaunch", 1);
+        }
+        model.addAttribute("profit", balance - (Long) httpSession.getAttribute("oldBalance"));
+        model.addAttribute("initialValue", httpSession.getAttribute("initialValue"));
+        model.addAttribute("numberOfLaunch", httpSession.getAttribute("numberOfLaunch"));
+
+
         return "dice-roll";
     }
 
@@ -114,10 +130,16 @@ public class CasinoController {
         log.info(String.valueOf(diceThrow));
         String pseudo = String.valueOf(httpSession.getAttribute("pseudo"));
         int bet = diceThrow.getBetAmount();
+        httpSession.setAttribute("bet", bet);
+        httpSession.setAttribute("oldBalance", httpSession.getAttribute("balance"));
+        httpSession.setAttribute("initialValue", diceThrow.getWinChance());
+        httpSession.setAttribute("numberOfLaunch", diceThrow.getBetNumber());
+
 
         int initialValue = diceThrow.getWinChance();
         int numberOfLaunch = diceThrow.getBetNumber();
         LaunchInputDto newLaunch = new LaunchInputDto(pseudo, initialValue, bet, numberOfLaunch);
+        // valeur du de
         String target;
         try {
             LaunchOutputDto launchOutputDto = this.launchApi.play(newLaunch);
@@ -127,6 +149,7 @@ public class CasinoController {
             log.error("Unable to work with this player {} !", pseudo, e);
             target = "redirect:/pay";
         }
+
         return target;
     }
 
