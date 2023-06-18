@@ -121,17 +121,17 @@ public Gambler playGame(String pseudo, int initialValue, int bet, int numberOfLa
 
     int recentWins = getNumberOfWin(gambler.getPseudo());
 
-    if (recentWins == 10) {
-        // Si le joueur a gagné les 10 dernières parties, il perd directement
-        gambler.setBalance(gambler.getBalance() - (bet * numberOfLaunch));
-    }
+
 
     for (int i = 0; i < numberOfLaunch; i++) {
         Party newParty = new Party();
         newParty.setGambler(gambler);
         newParty.setBet(bet);
         newParty.setDiceThrowCounter(initialValue);
-
+        if (recentWins >= 10) {
+                // Si le joueur a gagné les 10 dernières parties, il perd directement
+                gambler.setBalance(gambler.getBalance() - bet);
+            }
         boolean isWin = false;
         int random = (int) (Math.random() * 98 + 1);
 
@@ -149,7 +149,7 @@ public Gambler playGame(String pseudo, int initialValue, int bet, int numberOfLa
         System.out.println("isWin = " + isWin);
 
         if (isWin) {
-            gambler.setBalance(gambler.getBalance() + (long) bet * (initialValue / 100));
+            gambler.setBalance(gambler.getBalance() + (long) bet * 100 / initialValue);
         }
 
         gambler.addParty(newParty);
